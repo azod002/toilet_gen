@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Toilet emoji-style icon -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,30 C44,30 36,38 36,48 L36,60 C36,66 40,72 46,74 L46,78 L62,78 L62,74 C68,72 72,66 72,60 L72,48 C72,38 64,30 54,30 Z"/>
+    <path
+        android:fillColor="#E0F2F1"
+        android:pathData="M48,48 L60,48 L60,56 C60,59.3 57.3,62 54,62 C50.7,62 48,59.3 48,56 Z"/>
+</vector>

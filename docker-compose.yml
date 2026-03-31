@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # Infrastructure
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+    expose:
+      - "5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CLUSTER_ID: q1Sh-9_ISia_zwGINzRvyQ
+    expose:
+      - "9092"
+
+  redis:
+    image: redis:7-alpine
+    expose:
+      - "6379"
+
+  # Microservices
+  identity-service:
+    build:
+      context: .
+      dockerfile: backend/identity-service/Dockerfile
+    expose:
+      - "8081"
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/identity_db
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - postgres
+      - kafka
+
+  toilet-service:
+    build:
+      context: .
+      dockerfile: backend/toilet-service/Dockerfile
+    expose:
+      - "8082"
+    volumes:
+      - booksdata:/data/books
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/toilet_db
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - postgres
+      - kafka
+
+  sos-service:
+    build:
+      context: .
+      dockerfile: backend/sos-service/Dockerfile
+    expose:
+      - "8083"
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/sos_db
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      JWT_SECRET: ${JWT_SECRET}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - kafka
+      - redis
+
+  gamification-service:
+    build:
+      context: .
+      dockerfile: backend/gamification-service/Dockerfile
+    expose:
+      - "8084"
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/gamification_db
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - postgres
+      - kafka
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: backend/api-gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      IDENTITY_SERVICE_URL: http://identity-service:8081
+      TOILET_SERVICE_URL: http://toilet-service:8082
+      SOS_SERVICE_URL: http://sos-service:8083
+      GAMIFICATION_SERVICE_URL: http://gamification-service:8084
+    depends_on:
+      - identity-service
+      - toilet-service
+      - sos-service
+      - gamification-service
+
+volumes:
+  pgdata:
+  booksdata:

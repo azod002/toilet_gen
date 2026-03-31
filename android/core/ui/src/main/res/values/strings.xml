@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ToiletGen</string>
+    <string name="tab_map">Карта</string>
+    <string name="tab_profile">Профиль</string>
+    <string name="tab_entertainment">Развлечения</string>
+    <string name="tab_report">Отчёт</string>
+    <string name="btn_sos">SOS</string>
+    <string name="btn_login">Войти</string>
+    <string name="btn_register">Регистрация</string>
+    <string name="btn_add_toilet">Добавить точку</string>
+    <string name="btn_add_review">Написать отзыв</string>
+    <string name="btn_retry">Повторить</string>
+    <string name="label_rating">Рейтинг</string>
+    <string name="label_cleanliness">Чистота</string>
+    <string name="label_smell">Запах</string>
+    <string name="label_dirt">Грязь</string>
+    <string name="label_toilet_paper">Туалетная бумага</string>
+    <string name="label_reviews">Отзывы</string>
+    <string name="label_achievements">Достижения</string>
+    <string name="label_yearly_report">Годовой отчёт</string>
+    <string name="sos_searching">Ищем ближайший туалет...</string>
+    <string name="sos_found">Найден! Строим маршрут...</string>
+    <string name="sos_waiting">Ожидаем ответ владельца...</string>
+    <string name="entertainment_coming_soon">Раздел развлечений скоро появится!</string>
+    <string name="error_generic">Произошла ошибка</string>
+    <string name="error_network">Нет подключения к сети</string>
+</resources>
