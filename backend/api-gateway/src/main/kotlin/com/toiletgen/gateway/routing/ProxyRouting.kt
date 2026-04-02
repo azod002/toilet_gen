@@ -27,6 +27,11 @@ fun Route.proxyRoutes(client: HttpClient, rawClient: HttpClient, config: Service
         handle { proxy(call, client, config.toiletUrl) }
     }
 
+    // Stamps (via Toilet Service)
+    route("/api/v1/stamps/{...}") {
+        handle { proxy(call, client, config.toiletUrl) }
+    }
+
     // Books (via Toilet Service) — uses raw client for binary data
     route("/api/v1/books/{...}") {
         handle { proxyBinary(call, rawClient, config.toiletUrl) }
@@ -94,9 +99,11 @@ private suspend fun proxy(call: io.ktor.server.application.ApplicationCall, clie
         }
     }
 
-    call.respond(
+    val contentType = response.contentType() ?: ContentType.Application.Json
+    call.respondText(
+        text = response.bodyAsText(),
+        contentType = contentType,
         status = response.status,
-        message = response.bodyAsText(),
     )
 }
 

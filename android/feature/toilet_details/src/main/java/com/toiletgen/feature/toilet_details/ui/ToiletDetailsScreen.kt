@@ -39,6 +39,13 @@ fun ToiletDetailsScreen(
 
     LaunchedEffect(toiletId) { viewModel.loadToilet(toiletId) }
 
+    uiState.stampMessage?.let { msg ->
+        LaunchedEffect(msg) {
+            kotlinx.coroutines.delay(3000)
+            viewModel.clearStampMessage()
+        }
+    }
+
     LaunchedEffect(uiState.deleted) {
         if (uiState.deleted) onBack()
     }
@@ -236,6 +243,57 @@ fun ToiletDetailsScreen(
                                         .height(10.dp)
                                         .clip(RoundedCornerShape(5.dp)),
                                     trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        }
+                    }
+
+                    // Collect stamp button
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            ),
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        "\uD83D\uDCEE Марка туалета",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.SemiBold,
+                                    )
+                                    Text(
+                                        "Соберите уникальную марку этого места",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f),
+                                    )
+                                }
+                                FilledTonalButton(
+                                    onClick = { viewModel.collectStamp() },
+                                    enabled = !uiState.stampCollecting,
+                                    shape = RoundedCornerShape(12.dp),
+                                ) {
+                                    if (uiState.stampCollecting) {
+                                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                                    } else {
+                                        Icon(Icons.Default.Star, null, modifier = Modifier.size(18.dp))
+                                        Spacer(Modifier.width(4.dp))
+                                        Text("Собрать")
+                                    }
+                                }
+                            }
+                            uiState.stampMessage?.let { msg ->
+                                Text(
+                                    msg,
+                                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (msg.contains("получена")) RatingExcellent
+                                        else MaterialTheme.colorScheme.error,
                                 )
                             }
                         }

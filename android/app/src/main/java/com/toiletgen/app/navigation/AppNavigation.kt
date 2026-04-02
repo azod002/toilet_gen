@@ -40,6 +40,7 @@ import com.toiletgen.feature.profile.ui.VisitHistoryScreen
 import com.toiletgen.feature.sos.ui.SosScreen
 import com.toiletgen.feature.toilet_details.ui.AddReviewScreen
 import com.toiletgen.feature.toilet_details.ui.ToiletDetailsScreen
+import com.toiletgen.feature.stamps.ui.StampsScreen
 import com.toiletgen.feature.yearly_report.ui.YearlyReportScreen
 import com.toiletgen.app.ui.ConsentScreen
 import kotlinx.coroutines.flow.firstOrNull
@@ -60,6 +61,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     data object AddToilet : Screen("add-toilet/{lat}/{lon}", "Добавить точку")
     data object AddReview : Screen("add-review/{toiletId}", "Написать отзыв")
     data object VisitHistory : Screen("visit-history", "История посещений")
+    data object Stamps : Screen("stamps", "Марки")
     data object News : Screen("entertainment/news", "Новости")
     data object Radio : Screen("entertainment/radio", "Радио")
     data object Jokes : Screen("entertainment/jokes", "Анекдоты")
@@ -207,6 +209,7 @@ fun AppNavigation(
                     onAchievementsClick = { navController.navigate(Screen.Achievements.route) },
                     onYearlyReportClick = { navController.navigate(Screen.Report.route) },
                     onVisitHistoryClick = { navController.navigate(Screen.VisitHistory.route) },
+                    onStampsClick = { navController.navigate(Screen.Stamps.route) },
                     onLogout = {
                         navController.navigate(Screen.Auth.route) {
                             popUpTo(0) { inclusive = true }
@@ -435,6 +438,16 @@ fun AppNavigation(
                 popExitTransition = { slideOutToRight() },
             ) {
                 VisitHistoryScreen(onBack = { navController.popBackStack() })
+            }
+
+            composable(
+                Screen.Stamps.route,
+                enterTransition = { slideInFromRight() },
+                exitTransition = { slideOutToLeft() },
+                popEnterTransition = { slideInFromLeft() },
+                popExitTransition = { slideOutToRight() },
+            ) {
+                StampsScreen(onBack = { navController.popBackStack() })
             }
         }
     }

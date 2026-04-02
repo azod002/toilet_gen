@@ -9,6 +9,7 @@ import com.toiletgen.core.domain.repository.AuthRepository
 import com.toiletgen.core.domain.usecase.AddReviewUseCase
 import com.toiletgen.core.domain.usecase.GetReviewsUseCase
 import com.toiletgen.core.domain.usecase.GetToiletDetailsUseCase
+import com.toiletgen.core.network.api.StampApi
 import com.toiletgen.core.network.api.ToiletApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -22,6 +23,8 @@ data class ToiletDetailsUiState(
     val currentUserId: String? = null,
     val currentUserRole: String = "user",
     val deleted: Boolean = false,
+    val stampMessage: String? = null,
+    val stampCollecting: Boolean = false,
 )
 
 class ToiletDetailsViewModel(
@@ -30,6 +33,7 @@ class ToiletDetailsViewModel(
     private val addReviewUseCase: AddReviewUseCase,
     private val authRepository: AuthRepository,
     private val toiletApi: ToiletApi,
+    private val stampApi: StampApi,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ToiletDetailsUiState())
@@ -75,6 +79,27 @@ class ToiletDetailsViewModel(
                 is Resource.Loading -> {}
             }
         }
+    }
+
+    fun collectStamp() {
+        val toiletId = _uiState.value.toilet?.id ?: return
+        viewModelScope.launch {
+            _uiState.update { it.copy(stampCollecting = true) }
+            try {
+                stampApi.collectStamp(toiletId)
+                _uiState.update { it.copy(stampCollecting = false, stampMessage = "Марка получена!") }
+            } catch (e: Exception) {
+                val msg = e.message?.let {
+                    if (it.contains("марку можно получить")) it
+                    else "Ошибка: $it"
+                } ?: "Ошибка получения марки"
+                _uiState.update { it.copy(stampCollecting = false, stampMessage = msg) }
+            }
+        }
+    }
+
+    fun clearStampMessage() {
+        _uiState.update { it.copy(stampMessage = null) }
     }
 
     fun deleteToilet() {

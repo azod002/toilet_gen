@@ -71,6 +71,7 @@ fun ProfileScreen(
     onAchievementsClick: () -> Unit,
     onYearlyReportClick: () -> Unit,
     onVisitHistoryClick: () -> Unit,
+    onStampsClick: () -> Unit = {},
     onLogout: () -> Unit,
     viewModel: ProfileViewModel = koinViewModel(),
 ) {
@@ -163,6 +164,14 @@ fun ProfileScreen(
             title = "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F",
             subtitle = "\u0412\u0430\u0448\u0438 \u0430\u0447\u0438\u0432\u043A\u0438 \u0438 \u043D\u0430\u0433\u0440\u0430\u0434\u044B",
             onClick = onAchievementsClick,
+        )
+
+        ProfileMenuCard(
+            icon = Icons.Default.Star,
+            iconTint = Color(0xFF7B1FA2),
+            title = "\u041A\u043E\u043B\u043B\u0435\u043A\u0446\u0438\u044F \u043C\u0430\u0440\u043E\u043A",
+            subtitle = "\u0412\u0430\u0448\u0438 \u0442\u0443\u0430\u043B\u0435\u0442\u043D\u044B\u0435 \u043C\u0430\u0440\u043A\u0438 \u0438 \u043E\u0431\u043C\u0435\u043D",
+            onClick = onStampsClick,
         )
 
         ProfileMenuCard(

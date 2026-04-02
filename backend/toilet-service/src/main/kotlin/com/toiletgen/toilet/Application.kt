@@ -5,15 +5,21 @@ import com.toiletgen.toilet.infrastructure.http.bookRoutes
 import com.toiletgen.toilet.infrastructure.http.chatRoutes
 import com.toiletgen.toilet.infrastructure.http.forumRoutes
 import com.toiletgen.toilet.infrastructure.http.reportRoutes
+import com.toiletgen.toilet.infrastructure.http.stampRoutes
 import com.toiletgen.toilet.infrastructure.http.toiletRoutes
 import com.toiletgen.toilet.infrastructure.persistence.ForumRepliesTable
 import com.toiletgen.toilet.infrastructure.persistence.ForumThreadsTable
 import com.toiletgen.toilet.infrastructure.persistence.BooksTable
 import com.toiletgen.toilet.infrastructure.persistence.ChatMessagesTable
 import com.toiletgen.toilet.infrastructure.persistence.PrivateMessagesTable
+import com.toiletgen.toilet.infrastructure.persistence.DatabaseSeeder
 import com.toiletgen.toilet.infrastructure.persistence.ReportsTable
 import com.toiletgen.toilet.infrastructure.persistence.ReviewsTable
+import com.toiletgen.shared.messaging.outbox.OutboxPoller
+import com.toiletgen.shared.messaging.outbox.OutboxTable
+import com.toiletgen.toilet.infrastructure.persistence.StampTradesTable
 import com.toiletgen.toilet.infrastructure.persistence.ToiletsTable
+import com.toiletgen.toilet.infrastructure.persistence.UserStampsTable
 import com.toiletgen.toilet.infrastructure.persistence.VisitsTable
 import com.toiletgen.shared.events.EventTopics
 import com.toiletgen.shared.messaging.messagingModule
@@ -29,6 +35,8 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.http.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -84,10 +92,16 @@ fun Application.module() {
         jdbcUrl = dbUrl; username = dbUser; password = dbPassword
         driverClassName = "org.postgresql.Driver"; maximumPoolSize = 10
     }))
-    transaction { SchemaUtils.create(ToiletsTable, ReviewsTable, VisitsTable, BooksTable, ChatMessagesTable, PrivateMessagesTable, ForumThreadsTable, ForumRepliesTable, ReportsTable) }
+    transaction { SchemaUtils.create(ToiletsTable, ReviewsTable, VisitsTable, UserStampsTable, StampTradesTable, OutboxTable, BooksTable, ChatMessagesTable, PrivateMessagesTable, ForumThreadsTable, ForumRepliesTable, ReportsTable) }
+    DatabaseSeeder.seedIfEmpty()
+
+    // Start Transactional Outbox poller
+    val outboxPoller by inject<OutboxPoller>()
+    outboxPoller.start(CoroutineScope(Dispatchers.IO))
 
     routing {
         toiletRoutes()
+        stampRoutes()
         bookRoutes()
         chatRoutes()
         forumRoutes()

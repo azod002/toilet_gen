@@ -94,6 +94,25 @@ object ReportsTable : Table("reports") {
     override val primaryKey = PrimaryKey(id)
 }
 
+object UserStampsTable : Table("user_stamps") {
+    val id = uuid("id")
+    val userId = uuid("user_id")
+    val toiletId = uuid("toilet_id").references(ToiletsTable.id)
+    val obtainedAt = timestamp("obtained_at")
+    override val primaryKey = PrimaryKey(id)
+}
+
+object StampTradesTable : Table("stamp_trades") {
+    val id = uuid("id")
+    val senderId = uuid("sender_id")
+    val receiverId = uuid("receiver_id")
+    val senderStampId = uuid("sender_stamp_id").references(UserStampsTable.id)
+    val receiverStampId = uuid("receiver_stamp_id").references(UserStampsTable.id)
+    val status = varchar("status", 20).default("pending") // pending, accepted, declined, cancelled
+    val createdAt = timestamp("created_at")
+    override val primaryKey = PrimaryKey(id)
+}
+
 object ReviewsTable : Table("reviews") {
     val id = uuid("id")
     val toiletId = uuid("toilet_id").references(ToiletsTable.id)

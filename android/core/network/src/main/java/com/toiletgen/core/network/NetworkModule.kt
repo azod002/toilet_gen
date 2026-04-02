@@ -49,4 +49,5 @@ fun networkModule(apiBaseUrl: String) = module {
     single { get<Retrofit>().create(ChatApi::class.java) }
     single { get<Retrofit>().create(ForumApi::class.java) }
     single { get<Retrofit>().create(ReportsApi::class.java) }
+    single { get<Retrofit>().create(StampApi::class.java) }
 }

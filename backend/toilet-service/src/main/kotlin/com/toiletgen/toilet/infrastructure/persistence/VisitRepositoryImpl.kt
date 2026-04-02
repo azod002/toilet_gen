@@ -23,6 +23,16 @@ class VisitRepositoryImpl : VisitRepository {
         Unit
     }
 
+    override fun createInTransaction(visit: Visit): Visit {
+        VisitsTable.insert {
+            it[id] = visit.id
+            it[userId] = visit.userId
+            it[toiletId] = visit.toiletId
+            it[visitedAt] = visit.visitedAt
+        }
+        return visit
+    }
+
     override suspend fun findByUserId(userId: UUID): List<Visit> = newSuspendedTransaction {
         VisitsTable.selectAll()
             .where { VisitsTable.userId eq userId }

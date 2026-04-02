@@ -31,6 +31,12 @@ class EventPublisher(bootstrapServers: String) {
         producer.send(record).get()
     }
 
+    /** Publish a pre-serialized payload (used by OutboxPoller). */
+    suspend fun publishRaw(topic: String, key: String, payload: String) = withContext(Dispatchers.IO) {
+        val record = ProducerRecord(topic, key, payload)
+        producer.send(record).get()
+    }
+
     fun close() {
         producer.close()
     }

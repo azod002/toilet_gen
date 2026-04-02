@@ -173,6 +173,33 @@ data class ReportResponse(
 )
 
 @Serializable
+data class StampResponse(
+    val id: String,
+    val toiletId: String,
+    val toiletName: String,
+    val toiletType: String,
+    val obtainedAt: Long,
+)
+
+@Serializable
+data class TradeResponse(
+    val id: String,
+    val senderId: String,
+    val receiverId: String,
+    val senderStampId: String,
+    val receiverStampId: String,
+    val status: String,
+    val createdAt: Long,
+)
+
+@Serializable
+data class TradeRequest(
+    val receiverId: String,
+    val myStampId: String,
+    val theirStampId: String,
+)
+
+@Serializable
 data class YearlyReportResponse(
     val year: Int,
     val toiletsVisited: Int,

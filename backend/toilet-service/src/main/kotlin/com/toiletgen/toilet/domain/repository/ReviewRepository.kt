@@ -10,4 +10,10 @@ interface ReviewRepository {
     suspend fun avgRatingByToiletId(toiletId: UUID): Double
     suspend fun avgCleanlinessByToiletId(toiletId: UUID): Double
     suspend fun deleteByToiletId(toiletId: UUID)
+
+    /** In-transaction variants for use with Transactional Outbox */
+    fun createInTransaction(review: Review): Review
+    fun countByToiletIdInTransaction(toiletId: UUID): Int
+    fun avgRatingByToiletIdInTransaction(toiletId: UUID): Double
+    fun avgCleanlinessByToiletIdInTransaction(toiletId: UUID): Double
 }

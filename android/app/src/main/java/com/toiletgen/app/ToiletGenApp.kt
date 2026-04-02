@@ -13,6 +13,7 @@ import com.toiletgen.feature.map.di.mapFeatureModule
 import com.toiletgen.feature.profile.di.profileFeatureModule
 import com.toiletgen.feature.sos.di.sosFeatureModule
 import com.toiletgen.feature.toilet_details.di.toiletDetailsFeatureModule
+import com.toiletgen.feature.stamps.di.stampsModule
 import com.toiletgen.feature.yearly_report.di.yearlyReportFeatureModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -44,6 +45,7 @@ class ToiletGenApp : Application() {
                 yearlyReportFeatureModule,
                 entertainmentFeatureModule,
                 chatFeatureModule,
+                stampsModule,
             )
         }
     }

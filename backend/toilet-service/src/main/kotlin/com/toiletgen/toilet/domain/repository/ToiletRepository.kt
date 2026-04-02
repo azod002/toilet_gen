@@ -10,4 +10,8 @@ interface ToiletRepository {
     suspend fun update(toilet: Toilet): Toilet
     suspend fun updateRating(toiletId: UUID, avgRating: Double, avgCleanliness: Double, reviewCount: Int)
     suspend fun delete(id: UUID)
+
+    /** In-transaction variants for use with Transactional Outbox */
+    fun createInTransaction(toilet: Toilet): Toilet
+    fun updateRatingInTransaction(toiletId: UUID, avgRating: Double, avgCleanliness: Double, reviewCount: Int)
 }

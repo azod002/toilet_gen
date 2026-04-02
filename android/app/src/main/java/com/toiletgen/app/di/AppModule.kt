@@ -19,6 +19,7 @@ val appModule = module {
     single<SosRepository> { SosRepositoryImpl(get()) }
     single<AchievementRepository> { AchievementRepositoryImpl(get()) }
     single<ReportRepository> { ReportRepositoryImpl(get()) }
+    single<StampRepository> { StampRepositoryImpl(get()) }
 
     // Use Cases
     factory { LoginUseCase(get()) }

@@ -13,6 +13,7 @@ import com.toiletgen.toilet.domain.model.Visit
 import com.toiletgen.toilet.domain.repository.ReviewRepository
 import com.toiletgen.toilet.domain.repository.ToiletRepository
 import com.toiletgen.toilet.domain.repository.VisitRepository
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.UUID
 
 class ToiletHandler(
@@ -21,6 +22,9 @@ class ToiletHandler(
     private val eventPublisher: ToiletEventPublisher,
     private val visitRepository: VisitRepository,
 ) {
+    /**
+     * Create toilet + publish event in a single transaction (Transactional Outbox).
+     */
     suspend fun createToilet(cmd: CreateToiletCommand): Toilet {
         val toilet = Toilet(
             ownerId = cmd.ownerId?.let { UUID.fromString(it) },
@@ -33,9 +37,11 @@ class ToiletHandler(
             price = cmd.price,
             hasToiletPaper = cmd.hasToiletPaper,
         )
-        val saved = toiletRepository.create(toilet)
-        eventPublisher.toiletCreated(saved)
-        return saved
+        return newSuspendedTransaction {
+            toiletRepository.createInTransaction(toilet)
+            eventPublisher.toiletCreated(toilet)
+            toilet
+        }
     }
 
     suspend fun getNearby(query: GetNearbyToiletsQuery): List<Toilet> =
@@ -45,6 +51,9 @@ class ToiletHandler(
         toiletRepository.findById(UUID.fromString(query.id))
             ?: throw IllegalArgumentException("Туалет не найден")
 
+    /**
+     * Add review + recalculate rating + publish events in a single transaction.
+     */
     suspend fun addReview(cmd: AddReviewCommand): Review {
         val toiletId = UUID.fromString(cmd.toiletId)
         toiletRepository.findById(toiletId) ?: throw IllegalArgumentException("Туалет не найден")
@@ -59,18 +68,22 @@ class ToiletHandler(
             hasToiletPaper = cmd.hasToiletPaper,
             comment = cmd.comment,
         )
-        val saved = reviewRepository.create(review)
 
-        // Recalculate rating
-        val avgRating = reviewRepository.avgRatingByToiletId(toiletId)
-        val avgCleanliness = reviewRepository.avgCleanlinessByToiletId(toiletId)
-        val count = reviewRepository.countByToiletId(toiletId)
-        toiletRepository.updateRating(toiletId, avgRating, avgCleanliness, count)
+        return newSuspendedTransaction {
+            val saved = reviewRepository.createInTransaction(review)
 
-        eventPublisher.reviewAdded(saved)
-        eventPublisher.ratingUpdated(cmd.toiletId, avgRating)
+            // Recalculate rating
+            val avgRating = reviewRepository.avgRatingByToiletIdInTransaction(toiletId)
+            val avgCleanliness = reviewRepository.avgCleanlinessByToiletIdInTransaction(toiletId)
+            val count = reviewRepository.countByToiletIdInTransaction(toiletId)
+            toiletRepository.updateRatingInTransaction(toiletId, avgRating, avgCleanliness, count)
 
-        return saved
+            // Outbox events (same transaction)
+            eventPublisher.reviewAdded(saved)
+            eventPublisher.ratingUpdated(cmd.toiletId, avgRating)
+
+            saved
+        }
     }
 
     suspend fun deleteToilet(toiletId: String, userId: String, role: String = "user") {
@@ -84,11 +97,16 @@ class ToiletHandler(
         toiletRepository.delete(id)
     }
 
+    /**
+     * Visit toilet + publish event in a single transaction.
+     */
     suspend fun visitToilet(toiletId: String, userId: String) {
         val id = UUID.fromString(toiletId)
         toiletRepository.findById(id) ?: throw IllegalArgumentException("Туалет не найден")
-        visitRepository.create(Visit(userId = UUID.fromString(userId), toiletId = id))
-        eventPublisher.toiletVisited(toiletId, userId)
+        newSuspendedTransaction {
+            visitRepository.createInTransaction(Visit(userId = UUID.fromString(userId), toiletId = id))
+            eventPublisher.toiletVisited(toiletId, userId)
+        }
     }
 
     suspend fun getUserVisits(userId: String): List<Pair<Visit, Toilet?>> {

@@ -89,4 +89,32 @@ class ToiletRepositoryImpl : ToiletRepository {
         ToiletsTable.deleteWhere { Op.build { ToiletsTable.id eq id } }
         Unit
     }
+
+    override fun createInTransaction(toilet: Toilet): Toilet {
+        ToiletsTable.insert {
+            it[id] = toilet.id
+            it[ownerId] = toilet.ownerId
+            it[name] = toilet.name
+            it[description] = toilet.description
+            it[type] = toilet.type.name
+            it[latitude] = toilet.latitude
+            it[longitude] = toilet.longitude
+            it[isPaid] = toilet.isPaid
+            it[price] = toilet.price
+            it[hasToiletPaper] = toilet.hasToiletPaper
+            it[avgRating] = toilet.avgRating
+            it[avgCleanliness] = toilet.avgCleanliness
+            it[reviewCount] = toilet.reviewCount
+            it[createdAt] = toilet.createdAt
+        }
+        return toilet
+    }
+
+    override fun updateRatingInTransaction(toiletId: UUID, avgRating: Double, avgCleanliness: Double, reviewCount: Int) {
+        ToiletsTable.update({ ToiletsTable.id eq toiletId }) {
+            it[ToiletsTable.avgRating] = avgRating
+            it[ToiletsTable.avgCleanliness] = avgCleanliness
+            it[ToiletsTable.reviewCount] = reviewCount
+        }
+    }
 }

@@ -39,6 +39,7 @@ include(":android:feature:achievements")
 include(":android:feature:yearly_report")
 include(":android:feature:entertainment")
 include(":android:feature:chat")
+include(":android:feature:stamps")
 
 // === Backend Modules ===
 include(":backend:shared:domain-events")

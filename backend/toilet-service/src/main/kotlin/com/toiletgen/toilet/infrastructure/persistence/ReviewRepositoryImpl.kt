@@ -68,4 +68,38 @@ class ReviewRepositoryImpl : ReviewRepository {
         ReviewsTable.deleteWhere { Op.build { ReviewsTable.toiletId eq toiletId } }
         Unit
     }
+
+    override fun createInTransaction(review: Review): Review {
+        ReviewsTable.insert {
+            it[id] = review.id
+            it[toiletId] = review.toiletId
+            it[userId] = review.userId
+            it[username] = review.username
+            it[rating] = review.rating
+            it[cleanlinessSmell] = review.cleanlinessSmell
+            it[cleanlinessDirt] = review.cleanlinessDirt
+            it[hasToiletPaper] = review.hasToiletPaper
+            it[comment] = review.comment
+            it[createdAt] = review.createdAt
+        }
+        return review
+    }
+
+    override fun countByToiletIdInTransaction(toiletId: UUID): Int =
+        ReviewsTable.selectAll().where { ReviewsTable.toiletId eq toiletId }.count().toInt()
+
+    override fun avgRatingByToiletIdInTransaction(toiletId: UUID): Double =
+        ReviewsTable.select(ReviewsTable.rating.avg())
+            .where { ReviewsTable.toiletId eq toiletId }
+            .singleOrNull()?.get(ReviewsTable.rating.avg())?.toDouble() ?: 0.0
+
+    override fun avgCleanlinessByToiletIdInTransaction(toiletId: UUID): Double {
+        val smell = ReviewsTable.select(ReviewsTable.cleanlinessSmell.avg())
+            .where { ReviewsTable.toiletId eq toiletId }
+            .singleOrNull()?.get(ReviewsTable.cleanlinessSmell.avg())?.toDouble() ?: 0.0
+        val dirt = ReviewsTable.select(ReviewsTable.cleanlinessDirt.avg())
+            .where { ReviewsTable.toiletId eq toiletId }
+            .singleOrNull()?.get(ReviewsTable.cleanlinessDirt.avg())?.toDouble() ?: 0.0
+        return (smell + dirt) / 2.0
+    }
 }
