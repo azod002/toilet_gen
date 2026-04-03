@@ -5,6 +5,8 @@ data class UserStamp(
     val toiletId: String,
     val toiletName: String,
     val toiletType: String,
+    val latitude: Double,
+    val longitude: Double,
     val obtainedAt: Long,
 )
 

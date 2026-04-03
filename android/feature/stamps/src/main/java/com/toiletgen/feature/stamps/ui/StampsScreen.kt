@@ -201,7 +201,7 @@ private fun StampCard(stamp: UserStamp) {
     )
 
     Card(
-        modifier = Modifier.aspectRatio(0.85f).rotate(rotation),
+        modifier = Modifier.aspectRatio(0.75f).rotate(rotation),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
@@ -217,8 +217,8 @@ private fun StampCard(stamp: UserStamp) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Text(stampEmoji, fontSize = 28.sp)
-            Spacer(Modifier.height(4.dp))
+            Text(stampEmoji, fontSize = 24.sp)
+            Spacer(Modifier.height(3.dp))
             Text(
                 stamp.toiletName,
                 style = MaterialTheme.typography.labelSmall,
@@ -227,7 +227,31 @@ private fun StampCard(stamp: UserStamp) {
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 color = Color.White,
+                fontSize = 10.sp,
             )
+            Spacer(Modifier.height(4.dp))
+            // Координаты
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = Color.Black.copy(alpha = 0.3f),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Text(
+                        "\uD83D\uDCCD",
+                        fontSize = 8.sp,
+                    )
+                    Text(
+                        "${"%.3f".format(stamp.latitude)}, ${"%.3f".format(stamp.longitude)}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = 0.9f),
+                        fontSize = 7.sp,
+                    )
+                }
+            }
             Spacer(Modifier.height(2.dp))
             val dateStr = remember(stamp.obtainedAt) {
                 SimpleDateFormat("dd.MM", Locale.getDefault()).format(Date(stamp.obtainedAt))

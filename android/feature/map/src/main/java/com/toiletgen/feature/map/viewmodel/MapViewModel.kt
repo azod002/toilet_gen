@@ -6,6 +6,7 @@ import com.toiletgen.core.common.Resource
 import com.toiletgen.core.domain.model.Toilet
 import com.toiletgen.core.domain.model.ToiletType
 import com.toiletgen.core.domain.usecase.GetNearbyToiletsUseCase
+import com.toiletgen.core.network.api.StampApi
 import com.toiletgen.core.network.api.ToiletApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -42,6 +43,7 @@ sealed interface MapEvent {
 class MapViewModel(
     private val getNearbyToiletsUseCase: GetNearbyToiletsUseCase,
     private val toiletApi: ToiletApi,
+    private val stampApi: StampApi,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapUiState())
@@ -89,9 +91,13 @@ class MapViewModel(
             viewModelScope.launch {
                 try {
                     toiletApi.visitToilet(target.toiletId)
-                } catch (_: Exception) {
-                    // Visit recording failed silently — don't bother user
-                }
+                } catch (_: Exception) {}
+            }
+            // Автоматический сбор марки при прибытии
+            viewModelScope.launch {
+                try {
+                    stampApi.collectStamp(target.toiletId)
+                } catch (_: Exception) {}
             }
         }
     }

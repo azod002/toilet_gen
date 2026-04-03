@@ -22,6 +22,8 @@ data class StampResponse(
     val toiletId: String,
     val toiletName: String,
     val toiletType: String,
+    val latitude: Double,
+    val longitude: Double,
     val obtainedAt: Long,
 )
 
@@ -77,6 +79,8 @@ fun Route.stampRoutes() {
                 toiletId = toiletId.toString(),
                 toiletName = toilet.name,
                 toiletType = toilet.type.name,
+                latitude = toilet.latitude,
+                longitude = toilet.longitude,
                 obtainedAt = stamp.obtainedAt.toEpochMilli(),
             ))
         }
@@ -92,6 +96,8 @@ fun Route.stampRoutes() {
                     toiletId = stamp.toiletId.toString(),
                     toiletName = toilet?.name ?: "Удалённый туалет",
                     toiletType = toilet?.type?.name ?: "UNKNOWN",
+                    latitude = toilet?.latitude ?: 0.0,
+                    longitude = toilet?.longitude ?: 0.0,
                     obtainedAt = stamp.obtainedAt.toEpochMilli(),
                 )
             }

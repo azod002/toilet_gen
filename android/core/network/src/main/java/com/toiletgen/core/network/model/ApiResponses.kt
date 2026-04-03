@@ -178,6 +178,8 @@ data class StampResponse(
     val toiletId: String,
     val toiletName: String,
     val toiletType: String,
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
     val obtainedAt: Long,
 )
 

@@ -53,7 +53,8 @@ class StampRepositoryImpl(
 
     private fun com.toiletgen.core.network.model.StampResponse.toDomain() = UserStamp(
         id = id, toiletId = toiletId, toiletName = toiletName,
-        toiletType = toiletType, obtainedAt = obtainedAt,
+        toiletType = toiletType, latitude = latitude, longitude = longitude,
+        obtainedAt = obtainedAt,
     )
 
     private fun com.toiletgen.core.network.model.TradeResponse.toDomain() = StampTrade(
