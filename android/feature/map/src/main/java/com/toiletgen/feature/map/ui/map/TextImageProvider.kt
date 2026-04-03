@@ -16,18 +16,21 @@ class TextImageProvider(
 
     override fun getImage(): Bitmap {
         val density = context.resources.displayMetrics.density
-        val size = (48 * density).toInt()
+        val width = (36 * density).toInt()
+        val height = (52 * density).toInt()
+        val cornerRadius = 8 * density
         val textSize = 16 * density
 
-        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 
-        // Круг фона
-        val circlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        // Прямоугольник фона со скруглёнными углами
+        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor("#00897B") // Primary color
             style = Paint.Style.FILL
         }
-        canvas.drawCircle(size / 2f, size / 2f, size / 2f, circlePaint)
+        val rect = RectF(0f, 0f, width.toFloat(), height.toFloat())
+        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, bgPaint)
 
         // Обводка
         val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -35,7 +38,8 @@ class TextImageProvider(
             style = Paint.Style.STROKE
             strokeWidth = 2 * density
         }
-        canvas.drawCircle(size / 2f, size / 2f, size / 2f - density, strokePaint)
+        val strokeRect = RectF(density, density, width - density, height - density)
+        canvas.drawRoundRect(strokeRect, cornerRadius, cornerRadius, strokePaint)
 
         // Текст
         val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -47,9 +51,9 @@ class TextImageProvider(
 
         val textBounds = Rect()
         textPaint.getTextBounds(text, 0, text.length, textBounds)
-        val textY = size / 2f + textBounds.height() / 2f
+        val textY = height / 2f + textBounds.height() / 2f
 
-        canvas.drawText(text, size / 2f, textY, textPaint)
+        canvas.drawText(text, width / 2f, textY, textPaint)
 
         return bitmap
     }
